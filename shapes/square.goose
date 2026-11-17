@@ -5,38 +5,36 @@ import engine from "../engine";
  * CD
  */
 struct Square {
-    a: Vertex,
-    b: Vertex,
-    c: Vertex,
-    d: Vertex,
+    a: MovingVertex,
+    b: MovingVertex,
+    c: MovingVertex,
+    d: MovingVertex,
 }
 
-fn create_square(x: f32, y: f32, width: f32, color: u8[4]) -> Square {
+fn new_square(x: f32, y: f32, width: f32, color: u8[4]) -> Square {
+    return new_moving_square(x, y, 0, 0, width, color);
+}
+
+fn new_moving_square(x: f32, y: f32, vx: f32, vy: f32, width: f32, color: u8[4]) -> Square {
+    let vel = float2 { vx, vy };
     return Square {
-        a: Vertex { pos: float2 { x, y }, color: color },
-        b: Vertex { pos: float2 { x + width, y }, color: color },
-        c: Vertex { pos: float2 { x, y + width }, color: color },
-        d: Vertex { pos: float2 { x + width, y + width }, color: color },
+        a: MovingVertex { pos: float2 { x, y }, vel: vel, color: color },
+        b: MovingVertex { pos: float2 { x + width, y }, vel: vel, color: color },
+        c: MovingVertex { pos: float2 { x, y + width }, vel: vel, color: color },
+        d: MovingVertex { pos: float2 { x + width, y + width }, vel: vel, color: color },
     }
 }
 
-// fn add_lines(square: Square&, lines: Line[>..]&) {
-//     lines.push(Line { a: square.a, b: square.b });
-//     lines.push(Line { a: square.b, b: square.d });
-//     lines.push(Line { a: square.d, b: square.c });
-//     lines.push(Line { a: square.c, b: square.a });
-// }
-
 fn add_vertices(square: Square&, vertices: Vertex[>..]&) {
-    vertices.push(square.a);
-    vertices.push(square.b);
+    vertices.add_line(square.a.to_vertex(), square.b.to_vertex());
+    vertices.add_line(square.b.to_vertex(), square.d.to_vertex());
+    vertices.add_line(square.d.to_vertex(), square.c.to_vertex());
+    vertices.add_line(square.c.to_vertex(), square.a.to_vertex());
+}
 
-    vertices.push(square.b);
-    vertices.push(square.d);
-
-    vertices.push(square.d);
-    vertices.push(square.c);
-
-    vertices.push(square.c);
-    vertices.push(square.a);
+fn move_by_delta(square: Square&, delta: f32) {
+    square.a.move_by_delta(delta);
+    square.b.move_by_delta(delta);
+    square.c.move_by_delta(delta);
+    square.d.move_by_delta(delta);
 }
